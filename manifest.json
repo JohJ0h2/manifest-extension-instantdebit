@@ -1,28 +1,21 @@
 {
-  "manifest_version": 2,
-  "name": "Débit Réseau Instantané",
-  "version": "1.0",
-  "description": "Affiche le débit réseau instantané consommé.",
-  "permissions": [
-    "webRequest",
-    "webRequestBlocking",
-    "<all_urls>"
-  ],
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": true
-  },
-  "browser_action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
+    "manifest_version": 2,
+    "name": "Débit Instantané",
+    "version": "1.0",
+    "description": "Mesure du débit de téléchargement instantané.",
+    "permissions": [
+        "webRequest",
+        "webRequestBlocking",
+        "<all_urls>",
+        "storage"
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "48": "icon.png"
+        }
     }
-  },
-  "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  }
 }

@@ -1,45 +1,69 @@
-let totalBytes = 0;
-let lastTimestamp = Date.now();
+let totalBytesReceived = 0;
+let lastUpdateTime = Date.now();
+let lastSpeedKbps = "0.00"; // Dernier débit calculé
 
-// Fonction pour ajouter la taille des données de chaque requête
-function addData(details) {
-  const contentLengthHeader = details.responseHeaders.find(header => header.name.toLowerCase() === 'content-length');
-  const sizeInBytes = contentLengthHeader ? parseInt(contentLengthHeader.value, 10) : 0;
-
-  if (sizeInBytes > 0) {
-    totalBytes += sizeInBytes;
-  }
+// Fonction pour formater le débit en Kbps
+function formatKbps(bytes, elapsedTime) {
+    const bits = bytes * 8; // Convertir les octets en bits
+    const kbps = (bits / 1024) / elapsedTime; // Convertir les bits en kilobits par seconde
+    return kbps.toFixed(2); // Formater avec 2 décimales
 }
 
-// Intercepter les requêtes réseau
+// Fonction pour mettre à jour le badge et le stockage local
+function updateMetrics() {
+    const now = Date.now();
+    const elapsedTime = (now - lastUpdateTime) / 1000; // Temps écoulé en secondes
+
+    if (elapsedTime > 0) {
+        if (totalBytesReceived > 0) {
+            lastSpeedKbps = formatKbps(totalBytesReceived, elapsedTime);
+        }
+        
+        // Mettre à jour le badge avec le débit actuel ou le dernier débit enregistré
+        browser.browserAction.setBadgeText({
+            text: lastSpeedKbps
+        });
+
+        // Mettre à jour le stockage local avec le débit
+        browser.storage.local.set({ lastSpeedKbps });
+
+        // Réinitialiser les compteurs pour la prochaine période
+        totalBytesReceived = 0;
+        lastUpdateTime = now;
+    }
+}
+
+// Écouter les requêtes web pour mesurer le débit de téléchargement
 browser.webRequest.onCompleted.addListener(
-  function(details) {
-    addData(details);
-  },
-  { urls: ["<all_urls>"] },
-  ["responseHeaders"]
+    (details) => {
+        if (details.method === 'GET' || details.method === 'HEAD') {
+            let bytesReceived = 0;
+
+            // Vérifier l'en-tête 'Content-Length' si disponible
+            for (let header of details.responseHeaders) {
+                if (header.name.toLowerCase() === 'content-length') {
+                    bytesReceived += parseInt(header.value, 10);
+                }
+            }
+
+            // Si 'Content-Length' n'est pas disponible, utiliser 'totalBytes'
+            if (bytesReceived === 0 && details.statusCode === 200 && details.totalBytes) {
+                bytesReceived = details.totalBytes;
+            }
+
+            // Ajouter les octets reçus au total
+            totalBytesReceived += bytesReceived;
+
+            // Mise à jour immédiate du badge pour suivre le débit instantané
+            updateMetrics();
+        }
+    },
+    { urls: ["<all_urls>"] },
+    ["responseHeaders"]
 );
 
-// Fonction pour calculer le débit instantané
-function calculateInstantaneousSpeed() {
-  const now = Date.now();
-  const elapsedTime = (now - lastTimestamp) / 1000; // Temps écoulé en secondes
+// Mettre à jour le badge très fréquemment
+setInterval(updateMetrics, 200); // Mise à jour toutes les 200ms
 
-  if (elapsedTime > 0) {
-    const bitsTransferred = totalBytes * 8;
-    const speedKbps = (bitsTransferred / elapsedTime) / 1024; // Débit en Kbps
-
-    // Envoyer le débit instantané à la popup
-    browser.runtime.sendMessage({
-      type: "speedUpdate",
-      speed: speedKbps.toFixed(2)
-    });
-
-    // Réinitialiser les valeurs pour la prochaine période
-    totalBytes = 0;
-    lastTimestamp = now;
-  }
-}
-
-// Mettre à jour le débit instantané toutes les 500 ms
-setInterval(calculateInstantaneousSpeed, 500);
+// Initialiser le badge avec "0.00"
+browser.browserAction.setBadgeText({ text: '0.00' });
