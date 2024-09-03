@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Débit Instantané",
-    "version": "4.0",
+    "version": "8.0",
     "description": "Mesure du débit de téléchargement instantané.",
     "permissions": [
         "webRequest",
