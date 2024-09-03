@@ -7,16 +7,17 @@ function updatePopup() {
 
         // Mettre à jour le texte du débit ou afficher "En attente de données..." si aucune donnée
         if (result.lastSpeedKbps) {
-            speedElement.textContent = `${result.lastSpeedKbps} Kbps`;
+            speedElement.textContent = `Débit instantané : ${result.lastSpeedKbps} Kbps`;
         } else {
             speedElement.textContent = 'En attente de données...';
         }
 
-        // Mettre à jour le texte du cumul ou afficher "0 Kbps" si aucune donnée
+        // Formater le cumul avec 2 décimales
         if (result.totalDataKbps) {
-            totalElement.textContent = `Total: ${result.totalDataKbps} Kbps`;
+            const formattedTotal = parseFloat(result.totalDataKbps).toFixed(2); // Arrondir à 2 décimales
+            totalElement.textContent = `Cumul des données : ${formattedTotal} Kbps`;
         } else {
-            totalElement.textContent = 'Total: 0.00 Kbps';
+            totalElement.textContent = 'Cumul des données : 0.00 Kbps';
         }
     }).catch((error) => {
         console.error('Erreur lors de la récupération des données:', error);
@@ -26,7 +27,4 @@ function updatePopup() {
 }
 
 // Appeler la fonction pour mettre à jour le popup au chargement
-updatePopup();
-
-// Mettre à jour le popup toutes les 200ms
-setInterval(updatePopup, 200);
+updatePo

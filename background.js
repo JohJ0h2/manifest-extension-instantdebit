@@ -34,14 +34,24 @@ function updateMetrics() {
             text: lastSpeedKbps
         });
 
-        // Mettre à jour le stockage local avec le débit et le cumul des données
-        browser.storage.local.set({ lastSpeedKbps, totalDataKbps });
+        // Sauvegarder les valeurs du débit instantané et du cumul dans le stockage local
+        browser.storage.local.set({
+            lastSpeedKbps,
+            totalDataKbps
+        });
 
         // Réinitialiser les compteurs pour la prochaine période
         totalBytesReceived = 0;
         lastUpdateTime = now;
     }
 }
+
+// Charger le cumul total des données téléchargées lors du démarrage de l'extension
+browser.storage.local.get('totalDataKbps').then((result) => {
+    if (result.totalDataKbps) {
+        totalDataKbps = parseFloat(result.totalDataKbps);
+    }
+});
 
 // Écouter les requêtes web pour mesurer le débit de téléchargement
 browser.webRequest.onCompleted.addListener(
@@ -57,7 +67,7 @@ browser.webRequest.onCompleted.addListener(
             }
 
             // Si 'Content-Length' n'est pas disponible, utiliser 'totalBytes'
-            if (bytesReceived === 0 && details.statusCode === 200 && details.totalBytes) {
+            if (bytesReceived === 0 && details.statusCode === 200 && details.hasOwnProperty('totalBytes')) {
                 bytesReceived = details.totalBytes;
             }
 
