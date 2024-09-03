@@ -1,12 +1,19 @@
 let totalBytesReceived = 0;
 let lastUpdateTime = Date.now();
 let lastSpeedKbps = "0.00"; // Dernier débit calculé
+let totalDataKbps = 0; // Cumul des données téléchargées en Kbps
 
 // Fonction pour formater le débit en Kbps
 function formatKbps(bytes, elapsedTime) {
     const bits = bytes * 8; // Convertir les octets en bits
     const kbps = (bits / 1024) / elapsedTime; // Convertir les bits en kilobits par seconde
     return kbps.toFixed(2); // Formater avec 2 décimales
+}
+
+// Fonction pour convertir les octets en kilobits
+function bytesToKbps(bytes) {
+    const bits = bytes * 8; // Convertir les octets en bits
+    return (bits / 1024).toFixed(2); // Convertir en kilobits et formater avec 2 décimales
 }
 
 // Fonction pour mettre à jour le badge et le stockage local
@@ -18,14 +25,17 @@ function updateMetrics() {
         if (totalBytesReceived > 0) {
             lastSpeedKbps = formatKbps(totalBytesReceived, elapsedTime);
         }
-        
+
+        // Ajouter les octets reçus au total cumulé
+        totalDataKbps += parseFloat(bytesToKbps(totalBytesReceived));
+
         // Mettre à jour le badge avec le débit actuel ou le dernier débit enregistré
         browser.browserAction.setBadgeText({
             text: lastSpeedKbps
         });
 
-        // Mettre à jour le stockage local avec le débit
-        browser.storage.local.set({ lastSpeedKbps });
+        // Mettre à jour le stockage local avec le débit et le cumul des données
+        browser.storage.local.set({ lastSpeedKbps, totalDataKbps });
 
         // Réinitialiser les compteurs pour la prochaine période
         totalBytesReceived = 0;
