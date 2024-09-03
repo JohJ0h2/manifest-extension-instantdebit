@@ -7,14 +7,33 @@
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      background-color: #f0f0f0;
     }
     h1 {
       font-size: 18px;
       margin-bottom: 10px;
-    }
-    #speed-display, #total-display {
-      font-size: 24px;
       color: #333;
+    }
+    #speed-display {
+      font-size: 24px;
+      color: #1e90ff;
+    }
+    #total-display {
+      font-size: 24px;
+      color: #ff6347;
+      margin-bottom: 20px;
+    }
+    #reload-button {
+      font-size: 16px;
+      padding: 10px 20px;
+      color: white;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #reload-button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
@@ -22,6 +41,7 @@
   <h1>Débit Réseau Instantané</h1>
   <div id="speed-display">En attente de données...</div>
   <div id="total-display">Cumul des données : 0.00 Kbps</div>
+  <button id="reload-button" onclick="reloadData()">Recharger les données</button>
   <script src="popup.js"></script>
 </body>
 </html>

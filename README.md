@@ -5,8 +5,7 @@ Cette extension Firefox mesure et affiche le débit réseau instantané en temps
 ## Fonctionnalités
 
 - Affiche le débit réseau en Kbps.
-- Mise à jour toutes les 250 ms.
-- Globab added mode.
+- Mise à jour toutes les 500 ms.
 
 ## Installation
 
